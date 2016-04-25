@@ -6,6 +6,9 @@
 #define EST_MIC_APPROX 0
 #define EST_MIC_E 1
 
+#define BIAS_NONE 0
+#define BIAS_MM 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,6 +37,7 @@ typedef struct mine_parameter
   double alpha;
   double c;
   int est;
+  int bias;
 } mine_parameter;
 
 

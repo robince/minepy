@@ -574,11 +574,12 @@ double **compute_HP2Q(int **cumhist, int*c, int q, int p)
  *   x (IN) : maximum grid size on dx-values
  *   score (OUT) : mutual information scores. score must be a 
  *                 preallocated array of dimension x-1
+ *   param (IN) : parameter structure
  * Returns
  *   0 on success, 1 if an error occurs
  */
 int OptimizeXAxis(double *dx, double *dy, int n, int *Q_map, int q, 
-		  int *P_map, int p, int x, double *score)
+		  int *P_map, int p, int x, double *score, mine_parameter *param)
 {
   int i, s, t, l;
   int *c;
@@ -668,7 +669,10 @@ int OptimizeXAxis(double *dx, double *dy, int n, int *Q_map, int q,
   
   /* score */
   for (i=2; i<=x; i++)
-    score[i-2] = I[p][i] / MIN(log(i), log(q));
+    if (param->bias == BIAS_NONE)
+      score[i-2] = I[p][i]  / MIN(log(i), log(q));
+    else /* BIAS_MM */
+      score[i-2] = (I[p][i] - ((i-1.0)*(q-1.0)/ (2.0*n)) )  / MIN(log(i), log(q));
  
   /* start frees */
   for (i=0; i<=p; i++)
@@ -842,10 +846,10 @@ mine_score *mine_compute_score(mine_problem *prob, mine_parameter *param)
       
       if (param->est == EST_MIC_APPROX)
   	ret = OptimizeXAxis(xx, yx, prob->n, Q_map, q, P_map, p,
-  			    score->m[i]+1, score->M[i]);
+  			    score->m[i]+1, score->M[i], param);
       else /* EST_MIC_E */
   	ret = OptimizeXAxis(xx, yx, prob->n, Q_map, q, P_map, p,
-  			    MIN(i+2, score->m[i]+1), score->M[i]);
+  			    MIN(i+2, score->m[i]+1), score->M[i], param);
 
       //printf("i: %i, x: %i , max_y_approx: %i, max_y_e: %i\n", i, i+2, score->m[i]+1, MIN(i+2, score->m[i]+1));
 
@@ -875,10 +879,10 @@ mine_score *mine_compute_score(mine_problem *prob, mine_parameter *param)
       
       if (param->est == EST_MIC_APPROX)
   	ret = OptimizeXAxis(yy, xy, prob->n, Q_map, q, P_map, p,
-  			    score->m[i]+1, M_temp);
+  			    score->m[i]+1, M_temp, param);
       else /* EST_MIC_E */
   	ret = OptimizeXAxis(yy, xy, prob->n, Q_map, q, P_map, p,
-  			    MIN(i+2, score->m[i]+1), M_temp);
+  			    MIN(i+2, score->m[i]+1), M_temp, param);
 
       //printf("i: %i, y: %i , max_x_approx: %i, max_x_e: %i\n", i, i+2, score->m[i]+1, MIN(i+2, score->m[i]+1));
 
@@ -952,6 +956,9 @@ char *mine_check_parameter(mine_parameter *param)
   
   if ((param->est != 0) && (param->est != 1))
       return "est must be in {0, 1}";
+
+  if ((param->bias != 0) && (param->bias != 1))
+      return "bias must be in {0, 1}";
 
   return NULL;
 }
