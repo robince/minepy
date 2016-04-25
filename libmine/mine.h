@@ -11,6 +11,7 @@
 
 #define NORM_MIC 0
 #define NORM_MI 1
+#define NORM_MAXJOINTENT 2
 
 #ifdef __cplusplus
 extern "C" {

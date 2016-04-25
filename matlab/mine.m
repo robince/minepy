@@ -60,8 +60,10 @@ end
 
 if strcmpi(norm, 'mic')
     n = 0;
-else
+elseif strcmpi(norm, 'mi')
     n = 1; % NORM_MI
+else
+    n = 2; % NORM_MAXJOINTENT
 end
 
 if nargout==1
