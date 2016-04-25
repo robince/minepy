@@ -28,7 +28,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 {
   double *x, *y;
   double alpha;
-  int c, est, bias;
+  int c, est, bias, norm;
   
   mwSize ncolsx, ncolsy;
   
@@ -44,7 +44,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Too many output arguments.");
 
   /* check for proper number of arguments */
-  if(nrhs != 6)
+  if(nrhs != 7)
     mexErrMsgTxt("Incorrect number of inputs.");
    
   /* check that number of rows in first input argument (x) is 1 */
@@ -75,11 +75,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
      mxGetNumberOfElements(prhs[5]) != 1)
     mexErrMsgTxt("bias must be a scalar.");
 
-  /* get alpha, c, est and bias */
+  /* make sure the seventh input argument (norm) is scalar */
+  if(!mxIsDouble(prhs[6]) || mxIsComplex(prhs[6]) ||
+     mxGetNumberOfElements(prhs[6]) != 1)
+    mexErrMsgTxt("norm must be a scalar.");
+
+  /* get alpha, c, est, bias and norm */
   alpha = mxGetScalar(prhs[2]);
   c = mxGetScalar(prhs[3]);
   est = (int) mxGetScalar(prhs[4]);
   bias = (int) mxGetScalar(prhs[5]);
+  norm = (int) mxGetScalar(prhs[6]);
   
   /* create a pointers for X and Y */
   x = mxGetPr(prhs[0]);
@@ -96,6 +102,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   param.c = c;
   param.est = est;
   param.bias = bias;
+  param.norm = norm;
 
   /* check param */
   ret = mine_check_parameter(&param);

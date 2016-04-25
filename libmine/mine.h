@@ -9,6 +9,9 @@
 #define BIAS_NONE 0
 #define BIAS_MM 1
 
+#define NORM_MIC 0
+#define NORM_MI 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,6 +41,7 @@ typedef struct mine_parameter
   double c;
   int est;
   int bias;
+  int norm;
 } mine_parameter;
 
 

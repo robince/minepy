@@ -670,9 +670,14 @@ int OptimizeXAxis(double *dx, double *dy, int n, int *Q_map, int q,
   /* score */
   for (i=2; i<=x; i++)
     if (param->bias == BIAS_NONE)
-      score[i-2] = I[p][i]  / MIN(log(i), log(q));
+      score[i-2] = I[p][i]; /* / MIN(log(i), log(q)); */
     else /* BIAS_MM */
-      score[i-2] = (I[p][i] - ((i-1.0)*(q-1.0)/ (2.0*n)) )  / MIN(log(i), log(q));
+      score[i-2] = (I[p][i] - ((i-1.0)*(q-1.0)/ (2.0*n)) );/*  / MIN(log(i), log(q));*/
+
+  if (param->norm == NORM_MIC)
+    for (i=2; i<=x; i++)
+      score[i-2] = score[i-2] / MIN(log(i), log(q));
+  /* else NORM_MI */
  
   /* start frees */
   for (i=0; i<=p; i++)
@@ -959,6 +964,9 @@ char *mine_check_parameter(mine_parameter *param)
 
   if ((param->bias != 0) && (param->bias != 1))
       return "bias must be in {0, 1}";
+
+  if ((param->norm != 0) && (param->norm != 1))
+      return "norm must be in {0, 1}";
 
   return NULL;
 }
